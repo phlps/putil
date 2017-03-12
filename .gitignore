@@ -1,0 +1,16 @@
+*.log
+target
+compiled
+.DS_Store
+out
+*.iml
+*.ipr
+*.iws
+.idea
+.settings
+.classpath
+.project
+.lein-failures
+pom.xml
+.cljs_rhino_repl
+.nrepl-history
