@@ -1,26 +1,13 @@
-(ns phlps.putil.util
-  (:require
-    [goog.string :as gstring]
-    [cljs-time.core :as t]
-    [cljs-time.format :as tfmt]
-    [cljs-uuid-utils.core :as uuid]
-    [goog.i18n.DateTimeFormat]))
+(ns phlps.putil.scalar
+  (:require [goog.string :as gstring]
+            [cljs-time.core :as t]
+            [cljs-time.format :as tfmt]
+            [cljs-uuid-utils.core :as uuid]
+            [goog.i18n.DateTimeFormat]))
 
-(defn index-of [xs x]
-  (loop [i 0 xs xs]
-    (if (= x (first xs))
-      i
-      (if (next xs)
-        (recur (inc i) (next xs))
-        -1))))
 
-(defn- -error? [x]
-  (instance? js/Error x))
-
-(defn throw-err [x]
-  (if (-error? x)
-    (throw x)
-    x))
+(defn showme []
+  (tfmt/show-formatters))
 
 (defn thrush [& args]
   "similar to ->  but better? :: see
@@ -33,9 +20,9 @@
   (or (nil? v) (js/isNaN v)))
 
 ;(comment ?? would this be better ??
-#_(defn NaN? [node]
-    (and (= (.call js/toString node) (str "[object Number]"))
-         (js/eval (str node " != +" node))))  ;)
+         #_(defn NaN? [node]
+           (and (= (.call js/toString node) (str "[object Number]"))
+                (js/eval (str node " != +" node))))  ;)
 
 (defn rand-uuid []
   (uuid/make-random-uuid))
@@ -65,11 +52,11 @@
    (datestr date "yyyy-MM-dd"))
   ([date pattern]
    (let [cache-it (fn []
-                    (let [frmattr (goog.i18n.DateTimeFormat. pattern)]
-                      (swap! date-time-formatters assoc pattern frmattr)
-                      frmattr))
+                   (let [frmattr (goog.i18n.DateTimeFormat. pattern)]
+                     (swap! date-time-formatters assoc pattern frmattr)
+                     frmattr))
          formatter (or (get @date-time-formatters pattern) (cache-it))]
-     (.format formatter date))))
+    (.format formatter date))))
 
 (def date-formats
   [
@@ -95,9 +82,6 @@
 
 (defn now []
   (t/to-default-time-zone (t/now)))
-
-(defn today []
-  (now))
 
 (defn gmt-offset
   "At our location, what gmt-offset does a new Date enshrine? In Australia

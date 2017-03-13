@@ -1,7 +1,8 @@
 (ns phlps.putil.devcards.core
   (:require
    #_[om.core :as om :include-macros true]
-   [sablono.core :as sab :include-macros true])
+   [sablono.core :as sab :include-macros true]
+   [phlps.putil.devcards.parse])
   (:require-macros
    [devcards.core :as dc :refer [defcard deftest]]))
 
@@ -9,7 +10,7 @@
 
 (defcard first-card
   (sab/html [:div
-             [:h1 "This is your first devcard!"]]))
+             [:h1 "This is your first devcard!" ]]))
 
 (defn main []
   ;; conditionally start the app based on whether the #main-app-area

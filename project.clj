@@ -17,6 +17,10 @@
                  [cljsjs/react-dom "15.3.1-0"]
                  #_[org.omcljs/om "1.0.0-alpha46"]
                  #_[reagent "0.6.0"]
+                 ;;
+                 ;;
+                 [com.andrewmcveigh/cljs-time "0.5.0-alpha1"]
+                 [com.lucasbradstreet/cljs-uuid-utils "1.0.2"]
                  ]
 
   :plugins [[lein-figwheel "0.5.8"]
@@ -62,7 +66,7 @@
                                   [figwheel-sidecar "0.5.8"]
                                   [com.cemerick/piggieback "0.2.1"]]
                    ;; need to add dev source path here to get user.clj loaded
-                   :source-paths ["src/main" "src/devcards"]
+                   :source-paths ["src/main" "src/devcards" "src/dev"]
                    ;; for CIDER
                    ;; :plugins [[cider/cider-nrepl "0.12.0"]]
                    :repl-options {; for nREPL dev you really need to limit output
