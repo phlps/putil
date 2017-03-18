@@ -1,6 +1,6 @@
 (defproject putil "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
+  :description "basic useful utilities"
+  :url "http://phlps.com/putil"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
@@ -21,6 +21,10 @@
                  ;;
                  [com.andrewmcveigh/cljs-time "0.5.0-alpha1"]
                  [com.lucasbradstreet/cljs-uuid-utils "1.0.2"]
+                 [cljsjs/pouchdb "5.2.1-0"]
+                 [cljsjs/pouchdb-authentication "0.5.5-0"]
+                 [cljsjs/pouchdb-find "0.10.3-0"]
+                 [cljsjs/pouchdb-live-find "0.2.0-0"]
                  ]
 
   :plugins [[lein-figwheel "0.5.8"]
@@ -62,7 +66,8 @@
 
   :figwheel { :css-dirs ["resources/public/css"] }
 
-  :profiles {:dev {:dependencies [[binaryage/devtools "0.8.2"]
+  :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]
+                                  [binaryage/devtools "0.8.2"]
                                   [figwheel-sidecar "0.5.8"]
                                   [com.cemerick/piggieback "0.2.1"]]
                    ;; need to add dev source path here to get user.clj loaded
