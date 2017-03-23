@@ -1,7 +1,7 @@
 
 (ns phlps.putil.devcards.pouchdb
   (:require
-    [devcards.core :as dc :refer [defcard defcard-doc deftest]]
+    [devcards.core] ;:as dc :refer [defcard defcard-doc deftest]]
     [cljs.test :as t :refer [is testing async report] #_:include-macros #_true]
     [phlps.putil.util :as u]
     [phlps.putil.parse :as parse]
@@ -14,7 +14,7 @@
     )
   (:require-macros
     [phlps.putil.macros :refer [<?]]
-    #_[devcards.core :as dc :refer [defcard defcard-doc deftest]]
+    [devcards.core :as dc :refer [defcard defcard-doc deftest]]
     #_[cljs.test :as t :refer [is testing async]]
     [cljs.core.async.macros :refer [go go-loop alt!]]))
 
@@ -28,13 +28,13 @@
         123)))
 (deftest test-pouch-simple
  (testing "testing pouchdb: open put post info get destry"
-   (async done (go
+   (async done
+     (go
      (let
-       #_[db (pouch/open "test-silly-db")]
-       [db (pouch/open "test-silly-db")
-          a1 {:_id "a1" :long "111"}
+         [db (pouch/open "test-silly-db")
+          a1 {:Xid "a1" :long "111"}
           a2 {:wide 222}
-          b1 (<! (pouch/put db a1))
+          b1 (<! (pouch/post db a1))
           b2 (<! (pouch/post db a2))
           c1 (get b1 "id")
           c2 (get b2 "id")
@@ -53,7 +53,14 @@
          (pouch/destroy db)
        (done))))))
 
-
-
+(comment
+  (require '[phlps.putil.pouchdb :as pouch]
+           '[cljs.core.async :refer [>! <! chan put! close! timeout]]
+           )
+  (require '[cljs.core.async.macros :as mac :refer [go go-loop alt!]])
+  (def a2 {:wide 222})
+  (def db (pouch/open "test-silly-db"))
+  (cljs.core.async.macros/go (prn "b2" (cljs.core.async/<! (pouch/post db a2))))
+  )
 
 

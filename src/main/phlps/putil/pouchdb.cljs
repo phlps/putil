@@ -9,9 +9,9 @@
                                  oget+ oset!+ ocall+ oapply+ ocall!+ oapply!+]])) ;
 
 (defn- ->js [m] (clj->js m))
-(defn- -process [channel] (-> channel
-                             (ch/xform (map js->clj))
-                             (ch/xform (map ch/log))))
+(defn- -process [channel] (->> channel
+                               (ch/mapch js->clj)
+                               (ch/mapch ch/log)))
 (defn db? [arg]
   (instance? js/PouchDB arg))
 (defn channel? [ch]

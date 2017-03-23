@@ -67,7 +67,6 @@
   :figwheel { :css-dirs ["resources/public/css"] }
 
   :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]
-                                  [binaryage/devtools "0.8.2"]
                                   [figwheel-sidecar "0.5.8"]
                                   [com.cemerick/piggieback "0.2.1"]]
                    ;; need to add dev source path here to get user.clj loaded

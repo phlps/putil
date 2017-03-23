@@ -13,12 +13,12 @@
     [cljs.core.async.macros :refer [go go-loop alt!]]))
 
 (defn process-file [file]
-  (-> file
+  (->> file
        (f/file-segments)
        (csv/read-csv-chan)
-       (ch/limit 4)
+       (async/take 4)
        (ch/->clj-log)
-       (ch/eat)))
+       (ch/discard)))
 
 (defn on-files [files]
   (doseq [ix (range (.-length files))]
