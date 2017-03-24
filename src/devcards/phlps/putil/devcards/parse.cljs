@@ -1,6 +1,6 @@
 (ns phlps.putil.devcards.parse
   (:require
-    [sablono.core :as sab :include-macros true]
+    [reagent.core]
     [cljs.reader :as rdr]
     [goog.string :as gstring]
     [phlps.putil.util :as u]
@@ -12,29 +12,28 @@
     #_[phsutil.devcards.data.subjects :as subjects]
     #_[phsutil.devcards.data.modules :as modules])
   (:require-macros
-    [devcards.core :as dc :refer [defcard defcard-doc deftest]]
+    [devcards.core :as dc :refer [defcard-rg defcard-doc deftest]]
     [cljs.test :refer [is testing async]]))
 
 
 
 (def demodate (gdate/DateTime. (.getFullYear (gdate/DateTime.)) 11 25 1 2 3))
 
-(defcard date-time-formatting-and-parsing
+(defcard-rg date-time-formatting-and-parsing
             (let [now (gdate/DateTime.)]
-              (sab/html
-                [:div
-                [:table
-                 [:thead [:tr [:th "specification.."] [:th " "] [:th "sample"]]]
-                 [:tbody
-                  (for [f u/date-formats]
-                    ^{:key f}
-                    [:tr [:td f] [:td " : "] [:td (u/datestr demodate f)]])]]
-                [:table
-                 [:thead [:tr [:th "std. spec."] [:th " "] [:th "sample"]]]
-                 [:tbody
-                  (for [f (range 12)]
-                    ^{:key f}
-                    [:tr [:td f] [:td " : "] [:td (u/datestr now f)]])]]])))
+               [:div
+                  [:table
+                   [:thead [:tr [:th "specification.."] [:th " "] [:th "sample"]]]
+                   [:tbody
+                    (for [f u/date-formats]
+                      ^{:key f}
+                      [:tr [:td f] [:td " : "] [:td (u/datestr demodate f)]])]]
+                  [:table
+                   [:thead [:tr [:th "std. spec."] [:th " "] [:th "sample"]]]
+                   [:tbody
+                    (for [f (range 12)]
+                      ^{:key f}
+                      [:tr [:td f] [:td " : "] [:td (u/datestr now f)]])]]]))
 
 
 

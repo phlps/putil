@@ -1,10 +1,10 @@
 (ns phlps.putil.devcards.csv
   (:require [phlps.putil.csv :as csv]
             [devcards.core]
-            [sablono.core :as sab :include-macros true]
+            [reagent.core]
             [cljs.test :as t :refer [report] :include-macros true])
   (:require-macros
-    [devcards.core :refer [defcard defcard-doc deftest]]
+    [devcards.core :refer [defcard-rg defcard-doc deftest]]
     [cljs.test :as t :refer [is testing async]]))
 
 
@@ -15,10 +15,9 @@
       [string]
       (some #{\, \" \return \newline} string))
 
-(defcard date-time-formatting-and-parsing
-         (sab/html
+(defcard-rg date-time-formatting-and-parsing
            [:div
-           [:h2 "The parsing and creation of csv"]]))
+           [:h2 "The parsing and creation of csv"]])
 
 
 (defcard-doc

@@ -1,6 +1,5 @@
 (ns phlps.putil.file
   (:require
-    [sablono.core :as sab :include-macros true]
     [clojure.string :as str]
     [cljs.core.async
      :as a
@@ -32,8 +31,8 @@
   (let [att0 {:type "file" :on-change (on-file-select on-files)}
         attrs (if multiple? (assoc att0 :multiple true) att0)]
     (if (browser-can-read-files)
-      (sab/html [:div [:input attrs]])
-      (sab/html [:div [:h2 "This browser can't import a file."]]))))
+       [:div [:input attrs]]
+       [:div [:h2 "This browser can't import a file."]])))
 
 (defn file-segments
   ([file]

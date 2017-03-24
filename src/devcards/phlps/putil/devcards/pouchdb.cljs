@@ -14,8 +14,7 @@
     )
   (:require-macros
     [phlps.putil.macros :refer [<?]]
-    [devcards.core :as dc :refer [defcard defcard-doc deftest]]
-    #_[cljs.test :as t :refer [is testing async]]
+    [devcards.core :as dc :refer [defcard-doc deftest]]
     [cljs.core.async.macros :refer [go go-loop alt!]]))
 
 #_(set! devcards.core/test-timeout 999)

@@ -1,6 +1,6 @@
 (ns phlps.putil.devcards.core
   (:require
-   [sablono.core :as sab :include-macros true]
+   [reagent.core]
    [phlps.putil.devcards.parse]
    [phlps.putil.devcards.csv]
    [phlps.putil.devcards.file]
@@ -10,13 +10,13 @@
    [cljsjs.pouchdb-find]
    [cljsjs.pouchdb-live-find])
   (:require-macros
-   [devcards.core :as dc :refer [defcard deftest]]))
+   [devcards.core :as dc :refer [defcard-rg deftest]]))
 
 (enable-console-print!)
 
-(defcard first-card
-  (sab/html [:div
-             [:h1 "This is your first devcard!" ]]))
+(defcard-rg first-card
+             [:div
+                [:h1 "This is your first devcard!"]])
 
 (defn main []
   ;; conditionally start the app based on whether the #main-app-area
