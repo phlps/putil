@@ -21,9 +21,9 @@
 (defn main []
   ;; conditionally start the app based on whether the #main-app-area
   ;; node is on the page
-  #_(.plugin js/PouchDB PouchAuthentication)
+  #_(.plugin js/PouchDB js/PouchAuthentication)
   (if-let [node (.getElementById js/document "main-app-area")]
-    (.render js/ReactDOM (sab/html [:div "This is working"]) node)))
+    (.render js/ReactDOM [:div "This is working"] node)))
 
 (main)
 
