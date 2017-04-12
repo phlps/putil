@@ -7,6 +7,7 @@
   :min-lein-version "2.7.1"
 
   :dependencies [[org.clojure/clojure "1.8.0"]
+                 [clojure-future-spec "1.9.0-alpha15"] ;  spec
                  [org.clojure/clojurescript "1.9.229"]
                  [devcards "0.2.2"]
 
@@ -19,6 +20,7 @@
                  [cljsjs/pouchdb-authentication "0.5.5-0"]
                  [cljsjs/pouchdb-find "0.10.3-0"]
                  [cljsjs/pouchdb-live-find "0.2.0-0"]
+                 [binaryage/oops "0.5.3"]
                  ]
 
   :plugins [[lein-figwheel "0.5.8"]

@@ -1,6 +1,7 @@
 (ns phlps.putil.devcards.file
   (:require
     [phlps.putil.file :as f]
+    [phlps.putil.util :as u]
     [phlps.putil.chan :as ch]
     [phlps.putil.csv :as csv]
     [reagent.core]
@@ -17,7 +18,8 @@
        (f/file-segments)
        (csv/read-csv-chan)
        (async/take 4)
-       (ch/->clj-log)
+       (ch/mapch js->clj)
+       (ch/mapch #(do (prn "log ....... " %) %))
        (ch/discard)))
 
 (defn on-files [files]

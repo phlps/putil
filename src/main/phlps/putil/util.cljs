@@ -4,7 +4,9 @@
     [cljs-time.core :as t]
     [cljs-time.format :as tfmt]
     [cljs-uuid-utils.core :as uuid]
-    [goog.i18n.DateTimeFormat]))
+    [cljs.core.async :as async :refer [>! <! chan put! close! timeout]]
+    [goog.i18n.DateTimeFormat])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
 
 (defn index-of [xs x]
   (loop [i 0 xs xs]
@@ -21,6 +23,19 @@
   (if (-error? x)
     (throw x)
     x))
+
+(defn log [value]
+  (prn "============ log: " value)
+  value)
+
+(defn mapch [f in]
+  (let [out (chan)]
+    (go (loop []
+          (if-let [x (<! in)]
+            (do (>! out (f x))
+                (recur))
+            (close! out))))
+    out))
 
 (defn thrush [& args]
   "similar to ->  but better? :: see

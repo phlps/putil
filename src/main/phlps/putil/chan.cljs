@@ -6,11 +6,10 @@
     [goog.Uri]
     [clojure.string :as str]
     [cljs.core.async :as async :refer [>! <! chan put! close! timeout]]
-    [phlps.putil.util :refer [index-of now]])
+    [phlps.putil.util :refer [index-of now]]
+    [oops.core :refer [oget oset! ocall oapply ocall! oapply!
+                       oget+ oset!+ ocall+ oapply+ ocall!+ oapply!+]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
-
-(defn atom? [x]
-  (instance? Atom x))
 
 (defn log [value]
   (prn "============ log: " value)
@@ -24,18 +23,6 @@
                 (recur))
             (close! out))))
     out))
-
-#_(defn xform
-  "transform the values on the in channel using the transform xf"
-  [xf in]
-  (let [out (chan 1 xf)
-        _ (async/pipe in out)]
-    out)
-  ) ; return a channel
-
-(defn ->clj-log [channel] (->> channel
-                               (mapch js->clj)
-                               (mapch log)))
 
 (defn accept [pred in]
   (let [out (chan)]
@@ -78,3 +65,11 @@
                  (close! out)))]
     (apply f (cljs.core/concat args [callback]))
     out))
+
+(defn oneshot [out]
+  (fn [err result]
+    #_(prn "+++++============== raw err " err " result " (js->clj result))
+    (go (if err
+          (>! out (if (instance? js/Error err) err (js/Error. err)))
+          (>! out result))
+        (close! out))))

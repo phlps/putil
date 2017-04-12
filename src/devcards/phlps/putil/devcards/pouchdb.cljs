@@ -34,12 +34,17 @@
           a1 {:Xid "a1" :long "111"}
           a2 {:wide 222}
           b1 (<! (pouch/post db a1))
+          z0 (prn "b1 " b1)
           b2 (<! (pouch/post db a2))
+          z0 (prn "b2 " b2)
           c1 (get b1 "id")
+          z0 (prn "c1 " c1)
           c2 (get b2 "id")
+          z0 (prn "c2 " c2)
           d1 (get b1 "rev")
           d2 (get b2 "rev")
           inf (<! (pouch/info db))
+          z0 (prn "info " inf)
           g1 (<! (pouch/get db c1))
           g2 (<! (pouch/get db c2))
           ]
