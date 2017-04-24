@@ -24,11 +24,8 @@
     (throw x)
     x))
 
-(defn log [value]
-  (prn "============ log: " value)
-  value)
-
-(defn mapch [f in]
+(defn ch-map [f in]
+  "map the function f on the items from the `in` channel"
   (let [out (chan)]
     (go (loop []
           (if-let [x (<! in)]
@@ -37,8 +34,19 @@
             (close! out))))
     out))
 
+(defn ch-discard
+  "discard items from a channel"
+  ([in]
+   (ch-discard 0 in))
+  ([limit in]
+   (go-loop [c 1]
+            (let [item (<! in)]
+              (if (and item (or (<= c limit) (= limit 0)))
+                (recur (inc c))
+                (prn "discard " (dec c)))))))
+
 (defn thrush [& args]
-  "similar to ->  but better? :: see
+  "similar to -> but better? :: see
    [http://blog.fogus.me/2010/09/28/thrush-in-clojure-redux/]"
   (reduce #(%2 %1) args))
 

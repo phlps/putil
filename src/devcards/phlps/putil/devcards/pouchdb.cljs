@@ -26,16 +26,19 @@
             r (prn r)]
         123)))
 (deftest test-pouch-simple
- (testing "testing pouchdb: open put post info get destry"
+ (testing "testing pouchdb: open put post info get destroy "
    (async done
      (go
      (let
-         [db (pouch/open "test-silly-db")
-          a1 {:Xid "a1" :long "111"}
+         [out (chan)
+          db (pouch/open "test-silly-db")
+          a1 {:Xid "a1", :long "111"}
           a2 {:wide 222}
-          b1 (<! (pouch/post db a1))
-          z0 (prn "b1 " b1)
-          b2 (<! (pouch/post db a2))
+          b1 (pouch/post db a1 out)
+          b1 (<! out)
+          z0 (prn "b1 " )
+          b2 (pouch/post db a2 out)
+          b2 (<! out)
           z0 (prn "b2 " b2)
           c1 (get b1 "id")
           z0 (prn "c1 " c1)
@@ -43,10 +46,15 @@
           z0 (prn "c2 " c2)
           d1 (get b1 "rev")
           d2 (get b2 "rev")
-          inf (<! (pouch/info db))
+          inf (pouch/info db out)
+          inf (<! out)
           z0 (prn "info " inf)
-          g1 (<! (pouch/get db c1))
-          g2 (<! (pouch/get db c2))
+          g1 (pouch/get db c1 out)
+          g1 (<! out)
+          g2 (pouch/get db c2 out)
+          g2 (<! out)
+          z0 (prn "g1 " g1)
+          z0 (prn "g2 " g2)
           ]
          (do
            (is (= c1 (get g1 "_id")) (str "'_id' of first document " c1))
@@ -57,7 +65,7 @@
            (is (= (get inf "doc_count") 2) "doc count of database")
            (is (= (get inf "db_name") "test-silly-db") " name of database")
            )
-         (pouch/destroy db)
+         (pouch/destroy db out)
        (done))))))
 
 (comment

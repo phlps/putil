@@ -1,4 +1,4 @@
-(defproject putil "0.1.0-SNAPSHOT"
+(defproject putil "0.1.0"
   :description "basic useful utilities"
   :url "http://phlps.com/putil"
   :license {:name "Eclipse Public License"
@@ -20,7 +20,6 @@
                  [cljsjs/pouchdb-authentication "0.5.5-0"]
                  [cljsjs/pouchdb-find "0.10.3-0"]
                  [cljsjs/pouchdb-live-find "0.2.0-0"]
-                 [binaryage/oops "0.5.3"]
                  ]
 
   :plugins [[lein-figwheel "0.5.8"]

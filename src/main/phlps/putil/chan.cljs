@@ -11,19 +11,6 @@
                        oget+ oset!+ ocall+ oapply+ ocall!+ oapply!+]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
 
-(defn log [value]
-  (prn "============ log: " value)
-  value)
-
-(defn mapch [f in]
-  (let [out (chan)]
-    (go (loop []
-          (if-let [x (<! in)]
-            (do (>! out (f x))
-                (recur))
-            (close! out))))
-    out))
-
 (defn accept [pred in]
   (let [out (chan)]
     (go (loop []
@@ -41,16 +28,6 @@
                 (recur))
             (close! out))))
     out))
-
-(defn discard
-  ([in]
-   (discard 0 in))
-  ([limit in]
-   (go-loop [c 1]
-            (let [item (<! in)]
-              (if (and item (or (<= c limit) (= limit 0)))
-                (recur (inc c))
-                (prn "discard " (dec c)))))))
 
 (defn as-chan
   "Given an asynchronous function 'f' and some args

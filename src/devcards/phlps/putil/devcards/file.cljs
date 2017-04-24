@@ -18,9 +18,9 @@
        (f/file-segments)
        (csv/read-csv-chan)
        (async/take 4)
-       (ch/mapch js->clj)
-       (ch/mapch #(do (prn "log ....... " %) %))
-       (ch/discard)))
+       (u/ch-map js->clj)
+       (u/ch-map #(do (prn "log ....... " %) %))
+       (u/ch-discard)))
 
 (defn on-files [files]
   (doseq [ix (range (.-length files))]

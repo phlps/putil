@@ -3,35 +3,25 @@
   (:require [clojure.spec :as spec]
             [clojure.spec.test :as stest]
             [phlps.putil.util :as u]
-            [phlps.putil.chan :as ch]
             [clojure.core.async.impl.channels :as channels]
             [cljs.core.async :as async :refer [>! <! chan put! close! timeout]]
-            [oops.core :refer [oget oset! ocall oapply ocall! oapply!
-                                 oget+ oset!+ ocall+ oapply+ ocall!+ oapply!+]])
+            [reagent.interop :refer-macros [$ $!]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]]))
 
-(defn- -process2 [channel] (->> channel
-                                (ch/mapch js->clj)
-                                #_(ch/mapch #(do (prn "log ....... " %) %))))
-(defn- -process
-  "returns a channel 'out'. Any result or error will be on the channel."
-  [db op & args]
-  (let [out (chan)
-        callback (fn [err result]
-                   #_(prn "+++++============== raw err " err " result " (js->clj result))
-                   (go (if err
-                         (>! out (if (instance? js/Error err) err (js/Error. err)))
-                         (>! out result))
-                       (close! out)))]
-    (oapply+ db op (concat args [callback]))
-    (-process2 out)))
+(defn- -callback [out]
+  (fn [err result]
+    #_(prn "+++++============== raw err " err " result " (js->clj result))
+    (go (if err
+          (>! out (if (instance? js/Error err) err (js/Error. err)))
+          (>! out (js->clj result)))
+        )))
 
 (defn db? [arg]
   (instance? js/PouchDB arg))
-(defn channel? [ch]
-  (instance? channels/ManyToManyChannel ch))
-(defn jsname? [s]
-  (some? (re-matches #"[a-zA-Z][a-zA-Z0-9\*\+!\-_\?]*" s)))
+(defn channel? [arg]
+  (instance? channels/ManyToManyChannel arg))
+(defn jsname? [arg]
+  (some? (re-matches #"[a-zA-Z][a-zA-Z0-9\*\+!\-_\?]*" arg)))
 
 (defn open
   "Returns a new or existing database."
@@ -41,91 +31,94 @@
    (js/PouchDB. dbname (clj->js opts))))
 
 (defn close
-  [db]
-  (-process db "close"))
+  [db out]
+  ($ db close (-callback out)))
 
 (defn destroy
-  ([db]
-   (-process db "destroy"))
-  ([db opts]
-   (-process db "destroy (cljs->js opts")))
+  ([db out]
+    ($ db destroy (-callback out)))
+  ([db opts out]
+    ($ db destroy (clj->js opts) (-callback out))
+   ))
 
 (defn info
-  [db]
-  (-process db "info"))
+  [db out]
+   ($ db info (-callback out)))
 
 (defn get
-  ([db doc-id]
-   (-process db "get" doc-id))
-  ([db doc-id opts]
-   (-process db "get" doc-id (clj->js opts))))
+  ([db doc-id out]
+    ($ db get doc-id (-callback out)))
+  ([db doc-id opts out]
+    ($ db get doc-id (clj->js opts) (-callback out))))
 
 (defn put
-  ([db doc]
-   (-process db "put" (clj->js doc)))
-  ([db doc opts]
-   (-process db "put" (clj->js doc) (clj->js opts))))
+  ([db doc out]
+    ($ db put (clj->js doc) (-callback out)))
+  ([db doc opts out]
+    ($ db put (clj->js doc) (clj->js opts) (-callback out))))
 
 (defn post
-  ([db doc]
-   (-process db "post" (clj->js doc))
+  ([db doc out]
+    ($ db post (clj->js doc) (-callback out))
     )
-  ([db doc opts]
-   (-process db "post" (clj->js doc) (clj->js opts))))
+  ([db doc opts out]
+    ($ db post (clj->js doc) (clj->js opts) (-callback out))))
 
 (defn delete
-  ([db doc]
-   (-process db "put" (clj->js (assoc doc "_deleted" true))))
-  ([db doc opts]
-   (-process db "put" (clj->js (assoc doc "_deleted" true)) (clj->js opts))))
+  ([db doc out]
+   ($ db put (clj->js (assoc doc "_deleted" true)) (-callback out)))
+  ([db doc opts out]
+   ($ db put (clj->js (assoc doc "_deleted" true))
+             (clj->js opts) (-callback out))))
 
 (defn remove
-  ([db doc]
-   (delete db doc))
-  ([db doc opts]
-   (delete db doc opts)))
+  ([db doc out]
+   (delete db doc out))
+  ([db doc opts out]
+   (delete db doc opts out)))
 
 (defn changes
-  [db opts]
-  (let [out (chan)
-        changes-feed (ocall db "changes" (clj->js opts))
+  [db opts out]
+  (let [changes-feed ($ db changes (clj->js opts))
         publish #({:event %1 :info (js->clj %2)})]
     (do
-      (ocall changes-feed "on" "change" #(>! out (publish "change" %)))
-      (ocall changes-feed "on" "complete"
-             #(do (>! out (publish "complete" %)) (close! out)))
-      (ocall changes-feed "on" "error"
-             #(do (>! out (publish "error" %)) (close! out)))
-      (-process2 out))))  ; return a channel
+      ($ changes-feed on "change" #(go (>! out (publish "change" %))))
+      ($ changes-feed on "complete"
+             #(go (>! out (publish "changes-complete" %))))
+      ($ changes-feed on "error"
+             #(go (>! out (publish "changes-error" %)))))
+    changes-feed))  ; the "changes-feed" object has a cancel() method
 
 (defn replicate
-  ([db direction target]
-   (replicate db direction target {}))
-  ([db direction target opts]
+  ([source target out]
+   (replicate source target {} out))
+  ([source target opts out]
    (let [tgt (if (db? target) target (open target))
-         replicator (ocall+ (oget db "replicate") direction
-                            tgt (clj->js opts))
-         out (chan)
+         replicator ($ js/PouchDB replicate source target (clj->js opts))
          publish #({:event %1 :info (js->clj %2)})]
      (do
-       (ocall replicator "on" "change" #(>! out (publish "change" %)))
-       (ocall replicator "on" "paused" #(>! out (publish "paused" %)))
-       (ocall replicator "on" "active" #(>! out {:event "active"}))
-       (ocall replicator "on" "denied" #(>! out (publish "denied" %)))
-       (ocall replicator "on" "complete"
-              (do #(>! out (publish "complete" %)) (close! out)))
-       (ocall replicator "on" "error"
-              (do #(>! out (publish "error" %)) (close! out)))
+       ($ replicator on "change"
+                     #(go (>! out (publish "replication-change" %))))
+       ($ replicator on "paused"
+                     #(go (>! out (publish "replication-paused" %))))
+       ($ replicator on "active"
+                     #(go (>! out (publish "replication-active" ""))))
+       ($ replicator on "denied"
+                     #(go (>! out (publish "replication-denied" %))))
+       ($ replicator on "complete"
+                     #(go (>! out (publish "replication-complete" %)) ))
+       ($ replicator on "error"
+                     #(go (>! out (publish "replication-error" %)) ))
        )
-     (-process2 out))))  ;  return a channel
+     replicator)))  ; the "replicator" object has a cancel() method
 
-(defn create-index [db ixname fields]
-  (-process db "createIndex"
-            (clj->js {:index {:fields fields} :name ixname})))
+(defn create-index [db index out]
+  ($ db createIndex
+            (clj->js index) (-callback out)))
 
-(defn get-indexes [db]
-  (-process db "getIndexes"))
+(defn get-indexes [db out]
+  ($ db getIndexes (-callback out)))
 
-(defn delete-index [db index]
-  (-process db "deleteIndex" (clj->js index)))
+(defn delete-index [db index out]
+  ($ db deleteIndex (clj->js index) (-callback out)))
 
